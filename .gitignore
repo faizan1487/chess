@@ -1,0 +1,6 @@
+chessGame/__pycache__
+game/__pycache__
+game/migrations
+docker-compose.yml
+Dockerfile
+data.csv

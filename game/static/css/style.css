@@ -1,0 +1,192 @@
+body {
+    background-color: #333;
+}
+
+button {
+    display: inline-block;
+    background: rgb(159, 189, 183);
+    font-size: 0.875rem;
+    padding: 0.5em 1em;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    border-radius: 8px;
+}
+
+a {
+    color: #222;
+    text-decoration: none;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+.chessboard {
+    width: 480px;
+    height: 480px;
+    margin: 10px;
+    border: 15px solid #333;
+    align-items: center;
+}
+
+.square {
+    width: 60px;
+    height: 60px;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    float: left;
+    font-size: 0px;
+}
+
+.light {
+    background: rgb(165, 164, 164);
+}
+
+.dark {
+    background: rgb(146, 112, 66);
+}
+
+.selected {
+    background-color: red;
+}
+
+.recentlyMoved{
+    background-color: yellow;
+}
+
+.uiNum {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 12px;
+}
+
+.uiLet {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 12px;
+}
+
+.highlightAvailable {
+    background-color: rgb(137, 43, 226);
+    opacity: 0.5;
+}
+
+.pieceLetter {
+    font-size: 0px;
+}
+
+.resetButton {
+    position: absolute;
+    bottom: 2%;
+    right: 25%;
+    left: 25%;
+}
+
+.difContainer{
+    position: relative;
+}
+.top-status-bar{
+    position: relative;
+    top: 0px;
+}
+.bottom-status-bar{
+    position: relative;
+    bottom: 0px;
+}
+
+.status-bar {
+    right: 25%;
+    left: 25%;
+    background-color: #333;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+}
+.captured-pieces h2 {
+    margin-right: 5px;
+    font-size: 1em;
+    font-weight: bold;
+    color: aliceblue;
+}
+
+.captured-pieces {
+    display: flex;
+    align-items: center;
+}
+
+.captured-piece {
+    width: 40px;
+    height: 40px;
+    margin: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #fff;
+}
+
+.captured-piece img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.turns {
+    color: white;
+}
+
+.popup .overlay {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+    display: none;
+}
+
+.popup .content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: #fff;
+    width: 400px;
+    height: 200px;
+    z-index: 2;
+    text-align: center;
+    padding: 15px;
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+}
+
+.popup .close-btn {
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 25px;
+    height: 25px;
+    background: #222;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 25px;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.popup.active .overlay {
+    display: block;
+}
+
+.popup.active .content {
+    transition: all 300ms ease-in-out;
+    transform: translate(-50%, -50%) scale(1);
+}
