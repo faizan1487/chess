@@ -139,3 +139,32 @@ def mover(oldPlace,newPlace,board,color):
 
     board[oY][oX] = ""
     board[nY][nX] = piece
+    
+    
+from .openings import OPENING_BOOK
+
+def detect_opening(moves_list):
+    """
+    Detects the chess opening based on the moves played.
+    If a move sequence no longer matches the detected opening, update accordingly.
+    """
+    best_match = "Unknown Opening"
+    max_matched_moves = 0
+
+    for opening_name, moves in OPENING_BOOK.items():
+        matched_moves = 0
+        for i in range(len(moves_list)):
+            if i < len(moves) and moves_list[i] == moves[i]:
+                matched_moves += 1
+            else:
+                break  # Stop if a move doesn't match the opening sequence
+        
+        # ✅ Prioritize openings with partial matches instead of resetting immediately
+        if matched_moves > max_matched_moves:
+            max_matched_moves = matched_moves
+            best_match = opening_name
+
+    if max_matched_moves > 0:
+        return best_match  # ✅ Return the best-matched opening instead of "Unknown"
+
+    return "Unknown Opening"

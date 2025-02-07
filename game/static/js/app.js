@@ -118,13 +118,13 @@ function getAiMove(aiCol) {
 
 // Send the new piece places
 function sendNewPlace(oldID, newID) {
-    const aiCol = document.getElementById('aiCol').innerText
-    const formdata = new FormData()
-    const csrf = document.getElementsByName('csrfmiddlewaretoken')
-    formdata.append('csrfmiddlewaretoken', csrf[0].value)
-    formdata.append('newSqId', newID)
-    formdata.append('oldSqId', oldID)
+    const aiCol = document.getElementById('aiCol').innerText;
+    const formdata = new FormData();
+    const csrf = document.getElementsByName('csrfmiddlewaretoken');
 
+    formdata.append('csrfmiddlewaretoken', csrf[0].value);
+    formdata.append('newSqId', newID);
+    formdata.append('oldSqId', oldID);
 
     $.ajax({
         type: "POST",
@@ -132,20 +132,32 @@ function sendNewPlace(oldID, newID) {
         enctype: 'multipart/form-data',
         data: formdata,
         success: function (res) {
-            removeLastMoveHighlight()
-            window.turn = res.turn
-            compareBoard(res.board)
+            removeLastMoveHighlight();
+            window.turn = res.turn;
+            compareBoard(res.board);
+
+            console.log("Server Response:", res);
+
+            // ✅ Display Opening Name in UI
+            if (res.opening) {
+                console.log("Detected Opening:", res.opening);
+                document.getElementById("opening-name").innerText = res.opening;
+            } else {
+                console.log("No Opening Detected");
+            }
+
+            // ✅ Make AI Move if Playing Against AI
             if (aiCol !== 'None') {
-                getAiMove(aiCol)
+                getAiMove(aiCol);
             }
         },
 
         cache: false,
         contentType: false,
         processData: false,
-
     });
 }
+
 
 
 // 
