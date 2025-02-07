@@ -40,14 +40,11 @@ def board(request):
     request.session.setdefault('enPassant', (False, "", ""))
     request.session.setdefault('captureStatus', [(), ()])
     request.session.setdefault('aiColor', None)
-    
-    # ✅ Reset move_list if the game restarts
-    if 'move_list' not in request.session or len(request.session['move_list']) > 10:
-        print("🔄 Resetting Move List (Game Restart)")
-        request.session['move_list'] = []
+    request.session.setdefault('move_list', [])
 
-    # ✅ Ensure the first move clears any previous game's data
-    elif len(request.session['move_list']) == 0:
+    # ✅ Reset move_list if the game restarts or exceeds 10 moves
+    if len(request.session['move_list']) > 10:
+        print("🔄 Resetting Move List (Game Restart)")
         request.session['move_list'] = []
 
     board = request.session['board']
@@ -63,10 +60,7 @@ def board(request):
         oldSquare = request.POST.get('oldSqId')
 
         aiCol = request.POST.get('aiCol')
-        if aiCol == 'False':
-            aiCol = False
-        if aiCol == 'True':
-            aiCol = True
+        aiCol = False if aiCol == 'False' else True if aiCol == 'True' else None
 
         jsResponseInfo = {'board': board, 'turn': turn}
 
@@ -86,35 +80,41 @@ def board(request):
             request.session['turn'] = not request.session['turn']
             turn = request.session['turn']
             
+            # Convert numerical positions to algebraic notation
             algebraic_old = convert_to_algebraic(oldSquare)
             algebraic_new = convert_to_algebraic(newSquare)
 
-            # ✅ Ensure all moves are stored as tuples (force conversion)
+            # ✅ Ensure moves are stored as tuples
             new_move = (algebraic_old, algebraic_new)
 
-            # ✅ Convert all existing moves in move_list to tuples (fix previous incorrect moves)
+            # ✅ Convert all existing moves in move_list to tuples (fix previous incorrect formats)
             request.session['move_list'] = [tuple(m) if isinstance(m, list) else m for m in request.session['move_list']]
 
             # ✅ Prevent duplicate moves from being added
             if len(request.session['move_list']) == 0 or request.session['move_list'][-1] != new_move:
                 request.session['move_list'].append(new_move)
 
-            # ✅ Dynamically detect new opening
-            detected_opening = detect_opening(request.session['move_list'])
+            ### 🔹 **NEW: Improved Opening Detection Logic (Insert Here)**
+            # Retrieve the previous opening from session
+            # Retrieve the previous opening from session
+            previous_opening = request.session.get('opening', "Unknown Opening")
 
-            # ✅ If new move starts a different opening, reset move_list
-            if detected_opening != detect_opening(request.session['move_list'][:-1]):
-                print(f"🔄 Switching to new opening: {detected_opening}")
-                request.session['move_list'] = [new_move]
+            # ✅ Now opening is confirmed after 3 moves
+            detected_opening = detect_opening(request.session['move_list'], previous_opening)
 
-            # ✅ Limit move_list length to 10 moves (opening phase only)
-            request.session['move_list'] = request.session['move_list'][:10]
+            # ✅ Keep last detected opening after 10 moves
+            if len(request.session['move_list']) >= 10:
+                detected_opening = previous_opening
 
-            # ✅ Print move list for debugging
+            # ✅ Update only if the opening has changed significantly
+            if detected_opening != previous_opening:
+                print(f"🔄 Confirmed Opening Change: {previous_opening} → {detected_opening}")
+                request.session['opening'] = detected_opening
+
+            # ✅ Debugging Output
             print(f"Updated Move List (Filtered, Tuples Only): {request.session['move_list']}")
+            print(f"✅ Final Detected Opening: {detected_opening}")
 
-            # Detect Opening
-            print(f"✅ Detected Opening: {detected_opening}")
             return JsonResponse({
                 'board': board,
                 'turn': turn,
@@ -152,6 +152,10 @@ def board(request):
         playColor = request.POST.get('mySelect')
         request.session['aiColor'] = False if playColor == 'white' else True
         return redirect('playAI')
+
+
+
+
 
 def resetBoard(request):
     request.session['board'] = [

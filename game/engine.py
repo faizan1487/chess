@@ -143,13 +143,18 @@ def mover(oldPlace,newPlace,board,color):
     
 from .openings import OPENING_BOOK
 
-def detect_opening(moves_list):
+def detect_opening(moves_list, previous_opening="Unknown Opening"):
     """
     Detects the chess opening based on the moves played.
-    If a move sequence no longer matches the detected opening, update accordingly.
+    Prioritizes openings that match the longest sequence of moves.
     """
-    best_match = "Unknown Opening"
+    if len(moves_list) >= 10:
+        print(f"🎯 Opening phase is over. Keeping last detected opening: {previous_opening}")
+        return previous_opening  # Stop changing the opening after move 10
+
+    best_match = previous_opening  # Default to previous opening
     max_matched_moves = 0
+    possible_openings = []
 
     for opening_name, moves in OPENING_BOOK.items():
         matched_moves = 0
@@ -159,12 +164,22 @@ def detect_opening(moves_list):
             else:
                 break  # Stop if a move doesn't match the opening sequence
         
-        # ✅ Prioritize openings with partial matches instead of resetting immediately
+        if matched_moves > 0:
+            possible_openings.append((opening_name, matched_moves))
+
+        # ✅ Prioritize the opening with the most matched moves (variation detection)
         if matched_moves > max_matched_moves:
             max_matched_moves = matched_moves
             best_match = opening_name
 
-    if max_matched_moves > 0:
-        return best_match  # ✅ Return the best-matched opening instead of "Unknown"
+    # ✅ Ensure that we confirm an opening once at least 3 moves match
+    if max_matched_moves >= 3:
+        print(f"✅ Confirmed Opening: {best_match} after {max_matched_moves} moves")
+        return best_match
 
-    return "Unknown Opening"
+    # ✅ If multiple openings match but none have 3 moves yet, keep previous opening
+    if len(possible_openings) > 1 and max_matched_moves < 3:
+        print(f"⚠️ Multiple possible openings: {possible_openings} | Keeping previous: {previous_opening}")
+        return previous_opening
+
+    return best_match
