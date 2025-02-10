@@ -387,3 +387,35 @@ function drawcaptureStatus(captureStatus) {
 function togglePopup() {
     document.getElementById("popup-1").classList.toggle("active");
 }
+
+function sendMessage() {
+    const user_input = document.getElementById("user_input").value;  // Get user input from the chat box
+    document.getElementById("user_input").value = '';
+
+    // Only proceed if the input is not empty
+    if (user_input.trim() !== "") {
+        // Append the user message to the chatlogs
+        const chatlogs = document.getElementById("chatlogs");
+        chatlogs.innerHTML += "<p><strong>User:</strong> " + user_input + "</p>";
+        
+        // Send the user input to the Django backend using fetch and JSON
+        fetch('/chat_with_ai/', {  // Call the Django view that interacts with OpenRouter AI
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,  // CSRF token for security
+            },
+            body: JSON.stringify({ 'user_input': user_input })  // Send the input as JSON
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Append the AI's response to the chatlogs
+            chatlogs.innerHTML += "<p><strong>AI:</strong> " + data.ai_response + "</p>";
+
+            // Scroll to the bottom of the chatlogs
+            chatlogs.scrollTop = chatlogs.scrollHeight;
+        });
+    } else {
+        alert("Please type a message!");
+    }
+}

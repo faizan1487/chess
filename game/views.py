@@ -10,6 +10,12 @@ from .engine import MiniMax
 
 import math,csv,time
 
+from openai import OpenAI
+from django.http import JsonResponse
+import json
+from .engine import MiniMax, detect_opening  # Import detect_opening function
+from chessGame.settings import GEMINI_API_KEY
+
 def chooseMode(request):
     return render(request, 'choosePage.html')
 
@@ -18,9 +24,6 @@ def playLocal(request):
 
 def playAI(request):
     return render(request, 'chessPage.html',{'aiCol':request.session['aiColor']})
-
-
-from .engine import MiniMax, detect_opening  # Import detect_opening function
 
 
 def board(request):
@@ -154,9 +157,6 @@ def board(request):
         return redirect('playAI')
 
 
-
-
-
 def resetBoard(request):
     request.session['board'] = [
             ["r", "n", "b", "q", "k", "b", "n", "r"],
@@ -192,3 +192,52 @@ def convert_to_algebraic(index):
     rank = str(8 - (int(index) // 10))  # Convert row index to rank (1-8)
     file = files[int(index) % 10]  # Convert column index to file (a-h)
     return file + rank  # Return algebraic notation
+
+
+# Initialize OpenRouter API client with the provided base URL and API key
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=GEMINI_API_KEY
+)
+
+
+def chat_with_ai(request):
+    if request.method == 'POST':
+        try:
+            # Get the user input from the frontend (POST request)
+            print("request", request.POST)
+            data = json.loads(request.body.decode('utf-8'))  # Decode and load JSON
+            user_input = data.get('user_input', None)  # Get the user input
+            print("user_input", user_input)
+            
+            if not user_input:
+                return JsonResponse({'error': 'No input received'}, status=400)
+            # Set up the API call to OpenRouter using the provided model and input
+            completion = client.chat.completions.create(
+                model="google/gemini-2.0-flash-001",  # Use the specified AI model
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": user_input
+                            }
+                        ]
+                    }
+                ]
+            )
+            print("completion", completion)
+
+            # Get the response from the AI
+            ai_response = completion.choices[0].message.content
+            print("ai response", ai_response)
+
+            # You can add custom logic here to handle chess-related inquiries
+            if "Sicilian Defense" in user_input:
+                ai_response += "\nLet's practice the Sicilian Defense. I'll start with 1.e4."
+
+            # Return the AI response as a JSON response to the frontend
+            return JsonResponse({"ai_response": ai_response})
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)

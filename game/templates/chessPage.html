@@ -55,6 +55,14 @@
         </a>
       </div>
     </div>
+    <div class="chat-container">
+      <div id="chatbox">
+        <div id="chatlogs" class="chatlogs"></div>
+        <input type="text" id="user_input" placeholder="Ask the AI..." class="chat-input" />
+        <button onclick="sendMessage()" class="chat-send-button">Send</button>
+      </div>
+    </div>
+  
     <script src="{% static 'js/app.js'%}"></script>
   </body>
 </html>

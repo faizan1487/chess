@@ -5,5 +5,6 @@ urlpatterns = [
     path('play',views.playLocal,name='playLocal'),
     path('ai',views.playAI,name='playAI'),
     path('board',views.board),
-    path('reset',views.resetBoard,name='resetBoard')
+    path('reset',views.resetBoard,name='resetBoard'),
+    path('chat_with_ai/', views.chat_with_ai, name='chat_with_ai'),
 ]
