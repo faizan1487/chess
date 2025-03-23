@@ -12,21 +12,19 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
-from os.path import dirname, join
 import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-local_env = join(dirname(__file__), ".env")
-if os.path.exists(local_env):
-    environ.Env.read_env(env_file=local_env)
-
-# Loading all environment variables
+# Initialize environ
 env = environ.Env()
-environ.Env.read_env()
 
-GEMINI_API_KEY = env("GEMINI_API_KEY")
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# Get environment variables
+GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
